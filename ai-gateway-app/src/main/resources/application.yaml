@@ -1,0 +1,73 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-gateway-app
+
+  ai:
+    # 🔥 Disable default single ChatClient (we use custom multi-model routing)
+    chat:
+      client:
+        enabled: false
+
+    #  OpenAI config
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+
+    #  Ollama config
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: llama3.2:1b
+      embedding:
+        model: llama3.2:1b
+
+
+  #  PostgreSQL (pgvector for RAG)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  #  Reactive DB (optional, but good for WebFlux)
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/ai
+    username: postgres
+    password: postgres
+
+  sql:
+    init:
+      mode: always
+
+#  AI GATEWAY PLUGIN CONFIG
+ai:
+  gateway:
+    rag-enabled: false
+    fallback-enabled: true
+    token-threshold: 500
+
+#  SIMPLE API KEY CONFIG (NO JWT)
+security:
+  api-key: my-api-key
+
+#  LOGGING (helps debug routing + startup)
+logging:
+  level:
+    root: INFO
+    com.aigateway: DEBUG
+    org.springframework.ai: INFO
+
+#  ACTUATOR (optional but recommended)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
